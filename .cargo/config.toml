@@ -1,0 +1,8 @@
+[build]
+target = "armv7r-none-eabihf"
+
+[target.armv7r-none-eabihf]
+rustflags = [
+    "-Ctarget-cpu=cortex-r5",
+    "-Clink-args=-Tlink.x",
+]

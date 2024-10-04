@@ -1,0 +1,9 @@
+[package]
+authors = ["Jorge Aparicio <jorge@japaric.io>"]
+edition = "2021"
+name = "zup-rt"
+version = "0.1.0"
+
+[dependencies]
+cortex-r = { path = "../cortex-r" }
+zup-rt-macros = { path = "macros" }

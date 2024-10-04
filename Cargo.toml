@@ -1,0 +1,21 @@
+[workspace]
+[workspace.dependencies]
+reg-map = "0.1.0"
+
+[package]
+name = "qafm"
+version = "0.1.0"
+authors = ["Intermodulation Products AB <support@intermod.pro>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "qafm"
+test = false
+bench = false
+
+[dependencies]
+reg-map.workspace = true
+
+cortex-r = { path = "./cortex-r" }
+zup-rt = { path = "./zup-rt" }
