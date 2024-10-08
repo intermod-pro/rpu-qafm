@@ -6,9 +6,9 @@ Presto unit.
 
 ## Notable files
 
-- `do.sh`  
-    A helper Bash script to run commands through a dedicated container. See section *"Setup - Using
-    a container"* below.
+- `do.sh` / `do.bat` / `do.ps1`  
+    Helper Bash / Batch / PowerShell scripts to run commands through a dedicated container. See
+    section *Setup* below.
 - `src/user.rs`  
     The Rust source file containing the user logic for the RPU core.
 - `target/armv7r-none-eabihf/release/qafm`  
@@ -18,12 +18,16 @@ Presto unit.
 
 ## Setup
 
+*Note for Windows users*: in the following, replace calls to `./do.sh` with  calls to `.\do`: this
+will automatically choose `.\do.bat` or `.\do.ps1` depending on whether you are using a command
+prompt or a PowerShell.
+
 ### Using a container
 
 We recommend using [podman](https://podman.io/) to manage your containers. It's free, open source,
 fast, and safe with no admin privileges required. If for any reason you can't or don't want to use
 podman, you can also use the more popular [docker](https://www.docker.com/). You should be able to
-just replace `TOOL="/usr/bin/podman"` with `TOOL="/usr/bin/docker"` in the file `do.sh`.
+just replace `TOOL="podman"` with `TOOL="docker"` in the file `do.sh`.
 
 1. Build the container image (just once):
     ```

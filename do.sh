@@ -1,7 +1,7 @@
 #! /usr/bin/bash
 
 IMAGE="rpu-qafm"
-TOOL="/usr/bin/podman"
+TOOL="podman"
 
 case "$1" in
   build)
@@ -16,8 +16,12 @@ case "$1" in
       "$IMAGE" "${@:2}"
     ;;
 
+  "")
+    echo "specify one action: build or run"
+    ;;
+
   *)
-    echo "unrecognized command: $1"
+    echo "unrecognized action: $1"
     ;;
 
 esac
