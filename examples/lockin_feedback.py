@@ -140,7 +140,7 @@ def print_all(lck: lockin.Lockin):
 def print_pix(rcv: lockin.LockinReceiver, in_port: int):
     """Print the current value of amplitude squared as seen from the "normal" lockin.
 
-    This method receives one "summed" pixel, which is the sliding average of ``nsw`` raw pixels.
+    This method receives one "summed" pixel, which is the average of ``nsw`` raw pixels.
 
     Args:
         lck: an active instance of Lockin
