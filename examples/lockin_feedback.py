@@ -1,4 +1,5 @@
 import struct
+import sys
 import time
 from typing import Optional, Tuple
 
@@ -6,8 +7,6 @@ import numpy as np
 
 from presto import lockin
 from presto.hardware import AdcMode, DacMode
-
-from utils import address_port_from_cli
 
 
 def main(*, address: str, port: Optional[int] = None):
@@ -180,5 +179,13 @@ def f32x2_to_u64(low: float, high: float) -> int:
 
 
 if __name__ == "__main__":
-    address, port = address_port_from_cli()
+    if len(sys.argv) == 2:
+        address = sys.argv[1]
+        port = None
+    elif len(sys.argv) == 3:
+        address = sys.argv[1]
+        port = int(sys.argv[2])
+    else:
+        raise RuntimeError("IP address missing! Usage: `python scriptname.py ADDRESS [PORT]`")
+
     main(address=address, port=port)
