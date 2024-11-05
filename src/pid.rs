@@ -3,7 +3,7 @@
 #[derive(Default)]
 pub struct PidBuilder {
     setpoint: f32,
-
+	integrator: f32,
     // controller gains
     kp: f32,
     ki: f32,
@@ -26,6 +26,13 @@ impl PidBuilder {
         self.setpoint = sp;
         self
     }
+	
+	/// The initial z-scanner voltage
+	pub fn vz_offset(mut self, vz_offs: f32) -> Self {
+        self.integrator = vz_offs;
+        self
+    }
+	
     /// The proportional gain
     pub fn gain_p(mut self, kp: f32) -> Self {
         self.kp = kp;
@@ -56,6 +63,7 @@ impl PidBuilder {
     /// See [`PidController`] for examples.
     pub fn build(self) -> PidController {
         let (lim_min, lim_max) = self.lim_out.unwrap_or((f32::NEG_INFINITY, f32::INFINITY));
+		///unwrap_or returns the result of a function-computation, if there is an error return the values stated in the()
         let (lim_min_int, lim_max_int) = self.lim_int.unwrap_or((lim_min, lim_max));
         PidController {
             setpoint: self.setpoint,
@@ -66,7 +74,7 @@ impl PidBuilder {
             lim_max,
             lim_min_int,
             lim_max_int,
-            integrator: 0.0,
+            integrator: self.integrator,
             differentiator: 0.0,
             prev_measurement: 0.0,
         }
@@ -142,7 +150,7 @@ impl PidController {
             + (2.0 * TAU - 1.0) * self.differentiator)
             / (2.0 * TAU + 1.0);
 
-        let mut output = proportional + self.integrator + self.differentiator;
+        let mut output =proportional + self.integrator + self.differentiator;
         // clamp output to prevent damage to DUT
         output = output.clamp(self.lim_min, self.lim_max);
 

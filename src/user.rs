@@ -16,7 +16,7 @@ use crate::{BiasDac, Data, Params};
 /// |-----|-------|-----------------------------|-----------------------------|
 /// |  0  | write | nr of processed iterations  | CPU cycle counter           |
 /// |  1  | write | amp^2 (error signal)        | Z bias (control signal)     |
-/// |  2  | read  | lockin amplitude scale      | (unused)                    |
+/// |  2  | read  | lockin amplitude scale      | Z initial bias      |
 /// |  3  | read  | feedback set point          | proportional gain           |
 /// |  4  | read  | feedback integral gain      | derivative gain             |
 /// |  5  | read  | scanner X bias              | scanner Y bias              |
@@ -24,7 +24,7 @@ use crate::{BiasDac, Data, Params};
 ///
 pub fn user_logic(data: Data, bias_dac: BiasDac, params: Params) -> ! {
     // read lockin scale
-    let scale = read_scale(&params);
+    let (scale,vz_offs) = read_scale(&params);
 
     // read feedback set point and gain parameters
     let (sp, kp, ki, kd) = read_pid_params(&params);
@@ -33,6 +33,7 @@ pub fn user_logic(data: Data, bias_dac: BiasDac, params: Params) -> ! {
     // initialize PID controller
     let mut pid_c = PidController::builder()
         .setpoint(sp)
+		.vz_offset(vz_offs)
         .gain_p(kp)
         .gain_i(ki)
         .gain_d(kd)
@@ -120,9 +121,9 @@ fn read_z_limits(params: &Params) -> (f32, f32) {
 }
 
 /// Read scaling factor for lockin data
-fn read_scale(params: &Params) -> f32 {
-    let (scale, _) = u64_to_f32x2(params.idx(2).read());
-    scale
+fn read_scale(params: &Params) -> (f32,f32) {
+    let (scale, vz_offs) = u64_to_f32x2(params.idx(2).read());
+    (scale, vz_offs)
 }
 
 /// Write number of processed IRQs back to APU.
