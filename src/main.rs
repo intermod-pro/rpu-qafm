@@ -18,7 +18,7 @@ static GOT_IRQ: AtomicBool = AtomicBool::new(false);
 const ADDR_DATA: usize = 0x0000_8000; // ATCM1, 32 kiB
 const ADDR_PARAMS: usize = 0xfffc_0060; // OCM _reserved, 160 B
 const ADDR_PRESTO: usize = 0x8000_0000; // M_AXI_HPM0_LPD (LPD_PL)
-const ADDR_BIAS_DAC: usize = ADDR_PRESTO + 0x60;
+const ADDR_SLOW_MBV_WRITE: usize = ADDR_PRESTO + 0x80_0000;
 
 /// Block until new lockin data is available.
 fn wait_for_new_data() {
@@ -64,13 +64,21 @@ fn set_dc_bias(bias_dac: &BiasDac, channel: u64, bias: f32) {
 }
 
 fn write_bias_raw(bias_dac: &BiasDac, word: u64) {
-    // DAC-ready signal
+    // mbv_msg::Command::SpiWrite: SPI write raw word
+    // - bits 7 downto 0: opcode
+    // - bits 31 downto 8: raw SPI word
+    const SPI_WRITE: u64 = 0x0000_0004;
+    // MBV-ready signal
     const PL_PS_01: u16 = 122;
-    // wait for DAC to be ready
+
+    // wait for MBV to be ready to receive command
     while !irq_status(PL_PS_01) {}
-    // send command to DAC
-    bias_dac.write(word);
-    // wait for DAC to be busy
+
+    // send command to DAC through MBV
+    let msg = (word << 8) | SPI_WRITE;
+    bias_dac.write(msg);
+
+    // wait for MBV to be busy
     while irq_status(PL_PS_01) {}
 }
 
@@ -139,7 +147,7 @@ fn main() -> ! {
     let data = unsafe { types::DataMapPtr::from_ptr(ADDR_DATA as *mut _) };
 
     // create interface to Presto registers
-    let bias_dac = unsafe { types::BiasDacMapPtr::from_ptr(ADDR_BIAS_DAC as *mut _) };
+    let bias_dac = unsafe { types::BiasDacMapPtr::from_ptr(ADDR_SLOW_MBV_WRITE as *mut _) };
 
     // create interface to parameters
     let params = unsafe { types::ParamsMapPtr::from_ptr(ADDR_PARAMS as *mut _) };

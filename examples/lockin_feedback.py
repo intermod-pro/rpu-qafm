@@ -24,7 +24,7 @@ def main(*, address: str, port: Optional[int] = None):
     with lockin.Lockin(
         address=address,
         port=port,
-        ext_ref_clk=10e6,
+        # ext_ref_clk=10e6,
         adc_mode=AdcMode.Mixed,
         dac_mode=DacMode.Mixed,
     ) as lck:
@@ -52,7 +52,7 @@ def main(*, address: str, port: Optional[int] = None):
         program_scale(lck, NSW)
         program_limits(lck, 0.0, 1.0)
         # program (starting) feedback parameters
-        program_feedback(lck, 0.001, 660.0, 69.0, 4200.0)
+        program_feedback(lck, 0.00269, 330.0, 34.5, 2100.0)
 
         with lck.stream_pixels(
             summed=True,
